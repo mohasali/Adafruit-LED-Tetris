@@ -17,49 +17,40 @@ void setup() {
 }
 
 void loop(){
-    strip.setPixelColor(39,100,0,0);
-    strip.setPixelColor(38,100,0,0);
-    strip.setPixelColor(37,100,0,0);
-    strip.setPixelColor(36,100,0,0);
-    strip.setPixelColor(43,100,0,0);
-
+	strip.setPixelColor(remap(1,5),100,0,0);
+	strip.setPixelColor(remap(2,5),100,0,0);
+	strip.setPixelColor(remap(3,5),100,0,0);
+	strip.setPixelColor(remap(4,5),100,0,0);
+	strip.setPixelColor(remap(5,5),100,0,0);
 
   strip.show();
+  
   delay(200);
 }
-/*
-void loop() {
-  for(int i = 0; i < NUMPIXELS ;i++){
-      strip.setPixelColor(i,g,r,b);
-  }
-  setColors();
-  strip.show();
-  delay(20);
-}*/
 
-void setColors(){
-  if(r==235 && g < 235 && b==52 ){
-    //initial phase increase green
-    g+=3;
-  }
-  else if(g==235 && r > 52 && b==52 ){
-    // 2nd phase decrease red
-    r-=3;
-  }
-  else if(g==235 && b < 235 && r==52){
-    // 3rd phase increase blue
-    b+=3;
-  }
-  else if(b==235 && g > 52 && r==52){
-    // 4th phase decrease green
-    g-=3;
-  }
-  else if(b==235 && r < 235 && g==52){
-    // 5th phase increase red
-    r+=3;
-  }
-  else{
-    // decrease blue
-    b-=3;
-  }
+// check disatance from end of row
+// use distance as a measure how down to go
+
+uint16_t remap(uint16_t x, uint16_t y) {
+    if (x < 6) {
+      if(x%2){
+        //Odd rows, They go up in counting
+        return (x-1)*40 + (y*2)-1;
+      }
+      else{
+        //Posotive rows, They go down in counting
+        return x*40 - (y*2);
+
+      }
+    } else {
+    }
+}
+
+
+void drawL(int start){
+  strip.setPixelColor(start,100,0,0);
+  strip.setPixelColor(start+1,100,0,0);
+  strip.setPixelColor(start+2,100,0,0);
+  strip.setPixelColor(start+3,100,0,0);
+
 }
