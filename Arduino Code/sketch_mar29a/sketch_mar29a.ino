@@ -1,71 +1,120 @@
 #include <Adafruit_NeoPixel.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_NeoMatrix.h>
 
 #define PIN            12  // Define the pin to which the NeoPixel data line is connected
 #define NUMPIXELS      320 // Define the number of pixels in the NeoPixel chain
 
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
-int r = 235;
-int g = 52;
-int b = 52;
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_RGB + NEO_KHZ800);
 
-// 0 - 239 is first 6 strips
-// 240 - 319 is last 4
+int LShape[4][3][3] = {
+            {
+                {0, 0, 0},
+                {1, 1, 1},
+                {0, 0, 1}
+            },
+            {
+                {0, 1, 0},
+                {0, 1, 0},
+                {1, 1, 0}
+            },
+            {
+                {1, 0, 0},
+                {1, 1, 1},
+                {0, 0, 0}
+            },
+            {
+                {0, 1, 1},
+                {0, 1, 0},
+                {0, 1, 0}
+            }
+        };
+
+
+struct Shape {
+public:
+    int matrix[4][3][3];
+    int x;
+    int y;
+    int r, g, b;
+    int rotationIndex = 0;
+
+    Shape(int startX, int startY, int red, int green, int blue, int m[4][3][3]) 
+        : x(startX), y(startY), r(red), g(green), b(blue){
+          for (int i = 0; i < 4; ++i)
+            for (int j = 0; j < 3; ++j)
+                for (int k = 0; k < 3; ++k)
+                    matrix[i][j][k] = m[i][j][k];
+    }
+
+    virtual void rotateAntiClockwise() {
+        rotationIndex+=1;
+        rotationIndex = rotationIndex%4;
+        Serial.println(rotationIndex);
+    }
+    virtual void rotateClockwise() {
+        rotationIndex-=1;
+        if(rotationIndex<0) rotationIndex=3;
+        Serial.println(rotationIndex);
+    }
+
+    uint16_t remap(uint16_t x, uint16_t y) {
+      if (x <= 6) 
+      {
+        if(x%2)
+        {
+          //Odd rows, They go up in counting
+          return (x-1)*40 + (y*2)-1;
+        }
+        else
+        {
+          //Positive rows, They go down in counting
+          return x*40 - (y*2);
+        }
+      } 
+      else 
+      {
+        if(x%2)
+        {
+          return 240 + (x-7)*20 + y-1;
+        }
+        else {
+        {
+          return 240 + (x-6)*20 - (y);
+        }
+        }
+      }
+    }
+
+    void draw(Adafruit_NeoPixel& strip){
+      for(int i = 0; i < 3; ++i){
+        for(int j = 0; j < 3; ++j){
+          if(matrix[rotationIndex][i][j]==1){
+            int xPos = x + i;
+            int yPos = y + j;
+            strip.setPixelColor(remap(xPos, yPos), r, g, b);
+          }
+        }
+        strip.show();
+        }
+    }    
+};
+
+Shape test1 = Shape(5,5,225,65,175,LShape);
+Shape test2 = Shape(5,15,225,65,175,LShape);
 
 void setup() {
   strip.begin();  // Initialize the NeoPixel strip
-  strip.show();   // Initialize all pixels to 'off'
+  strip.show();
+  Serial.begin(9600);
 }
+
 
 void loop(){
-  for(int i = 1; i < 21; ++i)
-  {
-    for(int j = 1; j < 11; ++j)
-    {
-     strip.setPixelColor(remap(j, i), 45, 20, 79);
-    }
-    strip.show();
-    delay(200);
-    strip.clear();
-  }
-  
-}
-
-// check disatance from end of row
-// use distance as a measure how down to go
-
-uint16_t remap(uint16_t x, uint16_t y) {
-    if (x <= 6) 
-    {
-      if(x%2)
-      {
-        //Odd rows, They go up in counting
-        return (x-1)*40 + (y*2)-1;
-      }
-      else
-      {
-        //Positive rows, They go down in counting
-        return x*40 - (y*2);
-      }
-    } 
-    else 
-    {
-      if(x%2)
-      {
-        return 240 + (x-7)*20 + y-1;
-      }
-      else {
-      {
-        return 240 + (x-6)*20 - (y);
-      }
-      }
-    }
-}
-
-
-void drawL(int start){
-  strip.setPixelColor(start,100,0,0);
-  strip.setPixelColor(start+1,100,0,0);
-  strip.setPixelColor(start+2,100,0,0);
-  strip.setPixelColor(start+3,100,0,0);
-
+  test1.draw(strip);
+  test2.draw(strip);
+  delay(2000);
+  strip.clear();
+  test1.rotateAntiClockwise();
+  test2.rotateClockwise();
 }
