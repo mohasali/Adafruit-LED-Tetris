@@ -149,8 +149,8 @@ public:
     int r, g, b;
     int rotationIndex = 0;
 
-    Shape(int startX, int startY, int red, int green, int blue, int m[4][3][3]) 
-        : x(startX), y(startY), r(red), g(green), b(blue){
+    Shape(int startX, int startY, int red, int green, int blue, int m[4][3][3],int rotation) 
+        : x(startX), y(startY), r(red), g(green), b(blue),rotationIndex(rotation){
           for (int i = 0; i < 4; ++i)
             for (int j = 0; j < 3; ++j)
                 for (int k = 0; k < 3; ++k)
@@ -233,14 +233,6 @@ public:
       }
     }
 };
-
-Shape test1 = Shape(6,18,225,65,175,LShape);
-Shape test2 = Shape(5,14,225,65,175,JShape);
-Shape test3 = Shape(5,10,225,65,175,SShape);
-Shape test4 = Shape(5,6,225,65,175,ZShape);
-Shape test5 = Shape(5,2,225,65,175,TShape);
-
-
 void setup() {
   strip.begin();  // Initialize the NeoPixel strip
   strip.show();
@@ -249,10 +241,26 @@ void setup() {
 
 
 void loop(){
+  Shape test1 = SpawnShape();
   test1.draw(strip);
-  
-  delay(800);
+    strip.clear();
+  delay(3000);
   strip.clear();
 
-  test1.move_right();
+}
+
+Shape SpawnShape(){
+  int shapeMatrix = random(0,6);
+  int r = random(0,180);
+  int g = random(0,180-r);
+  int b = 180-r-g;
+  int rotation = random(0,4);
+  switch (shapeMatrix){
+    case 0: return Shape(5,18,r,g,b,LShape,rotation);
+    case 1: return Shape(5,18,r,g,b,JShape,rotation);
+    case 2: return Shape(5,18,r,g,b,SShape,rotation);
+    case 3: return Shape(5,18,r,g,b,ZShape,rotation);
+    case 4: return Shape(5,18,r,g,b,TShape,rotation);
+    case 5: return Shape(5,18,r,g,b,OShape,rotation);
+  }
 }
