@@ -8,27 +8,137 @@
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_RGB + NEO_KHZ800);
 
 int LShape[4][3][3] = {
-            {
-                {0, 0, 0},
-                {1, 1, 1},
-                {0, 0, 1}
-            },
-            {
-                {0, 1, 0},
-                {0, 1, 0},
-                {1, 1, 0}
-            },
-            {
-                {1, 0, 0},
-                {1, 1, 1},
-                {0, 0, 0}
-            },
-            {
-                {0, 1, 1},
-                {0, 1, 0},
-                {0, 1, 0}
-            }
-        };
+  {
+      {0, 0, 0},
+      {1, 1, 1},
+      {0, 0, 1}
+  },
+  {
+      {0, 1, 0},
+      {0, 1, 0},
+      {1, 1, 0}
+  },
+  {
+      {1, 0, 0},
+      {1, 1, 1},
+      {0, 0, 0}
+  },
+  {
+      {0, 1, 1},
+      {0, 1, 0},
+      {0, 1, 0}
+  }
+};
+int TShape[4][3][3] = {
+    {
+        {0, 1, 0},
+        {1, 1, 1},
+        {0, 0, 0}
+    },
+    {
+        {0, 1, 0},
+        {0, 1, 1},
+        {0, 1, 0}
+    },
+    {
+        {0, 0, 0},
+        {1, 1, 1},
+        {0, 1, 0}
+    },
+    {
+        {0, 1, 0},
+        {1, 1, 0},
+        {0, 1, 0}
+    }
+};
+int OShape[4][3][3] = {
+    {
+        {0, 1, 1},
+        {0, 1, 1},
+        {0, 0, 0}
+    },
+    {
+        {0, 1, 1},
+        {0, 1, 1},
+        {0, 0, 0}
+    },
+    {
+        {0, 1, 1},
+        {0, 1, 1},
+        {0, 0, 0}
+    },
+    {
+        {0, 1, 1},
+        {0, 1, 1},
+        {0, 0, 0}
+    }
+};
+int ZShape[4][3][3] = {
+    {
+        {1, 1, 0},
+        {0, 1, 1},
+        {0, 0, 0}
+    },
+    {
+        {0, 0, 1},
+        {0, 1, 1},
+        {0, 1, 0}
+    },
+    {
+        {0, 0, 0},
+        {1, 1, 0},
+        {0, 1, 1}
+    },
+    {
+        {0, 1, 0},
+        {1, 1, 0},
+        {1, 0, 0}
+    }
+};
+int SShape[4][3][3] = {
+    {
+        {0, 1, 1},
+        {1, 1, 0},
+        {0, 0, 0}
+    },
+    {
+        {0, 1, 0},
+        {0, 1, 1},
+        {0, 0, 1}
+    },
+    {
+        {0, 0, 0},
+        {0, 1, 1},
+        {1, 1, 0}
+    },
+    {
+        {1, 0, 0},
+        {1, 1, 0},
+        {0, 1, 0}
+    }
+};
+int JShape[4][3][3] = {
+    {
+        {1, 0, 0},
+        {1, 1, 1},
+        {0, 0, 0}
+    },
+    {
+        {0, 1, 1},
+        {0, 1, 0},
+        {0, 1, 0}
+    },
+    {
+        {0, 0, 0},
+        {1, 1, 1},
+        {0, 0, 1}
+    },
+    {
+        {0, 1, 0},
+        {0, 1, 0},
+        {1, 1, 0}
+    }
+};
 
 
 struct Shape {
@@ -47,12 +157,12 @@ public:
                     matrix[i][j][k] = m[i][j][k];
     }
 
-    virtual void rotateAntiClockwise() {
+    virtual void rotateClockwise() {
         rotationIndex+=1;
         rotationIndex = rotationIndex%4;
         Serial.println(rotationIndex);
     }
-    virtual void rotateClockwise() {
+    virtual void rotateAntiClockwise() {
         rotationIndex-=1;
         if(rotationIndex<0) rotationIndex=3;
         Serial.println(rotationIndex);
@@ -100,8 +210,12 @@ public:
     }    
 };
 
-Shape test1 = Shape(5,5,225,65,175,LShape);
-Shape test2 = Shape(5,15,225,65,175,LShape);
+Shape test1 = Shape(5,18,225,65,175,LShape);
+Shape test2 = Shape(5,14,225,65,175,JShape);
+Shape test3 = Shape(5,10,225,65,175,SShape);
+Shape test4 = Shape(5,6,225,65,175,ZShape);
+Shape test5 = Shape(5,2,225,65,175,TShape);
+
 
 void setup() {
   strip.begin();  // Initialize the NeoPixel strip
@@ -113,8 +227,18 @@ void setup() {
 void loop(){
   test1.draw(strip);
   test2.draw(strip);
+  test3.draw(strip);
+  test4.draw(strip);
+  test5.draw(strip);
+
+
   delay(2000);
   strip.clear();
-  test1.rotateAntiClockwise();
+  test1.rotateClockwise();
   test2.rotateClockwise();
+  test3.rotateClockwise();
+  test4.rotateClockwise();
+  test5.rotateClockwise();
+
+
 }
