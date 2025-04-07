@@ -208,9 +208,33 @@ public:
         strip.show();
         }
     }    
+
+    void move_right()
+    {
+      if(x < 8)
+      {
+        x += 1;
+      }
+    }
+
+    void move_left()
+    {
+      if(x > 0)
+      {
+        x -= 1;
+      }
+    }
+
+    void move_down()
+    {
+      if(y > 1)
+      {
+        y -= 1;
+      }
+    }
 };
 
-Shape test1 = Shape(5,18,225,65,175,LShape);
+Shape test1 = Shape(6,18,225,65,175,LShape);
 Shape test2 = Shape(5,14,225,65,175,JShape);
 Shape test3 = Shape(5,10,225,65,175,SShape);
 Shape test4 = Shape(5,6,225,65,175,ZShape);
@@ -226,19 +250,9 @@ void setup() {
 
 void loop(){
   test1.draw(strip);
-  test2.draw(strip);
-  test3.draw(strip);
-  test4.draw(strip);
-  test5.draw(strip);
-
-
-  delay(2000);
+  
+  delay(800);
   strip.clear();
-  test1.rotateClockwise();
-  test2.rotateClockwise();
-  test3.rotateClockwise();
-  test4.rotateClockwise();
-  test5.rotateClockwise();
 
-
+  test1.move_right();
 }
