@@ -2,11 +2,14 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_NeoMatrix.h>
 
+//declarations
 #define PIN            12  // Define the pin to which the NeoPixel data line is connected
 #define NUMPIXELS      320 // Define the number of pixels in the NeoPixel chain
 
+//strip instantiation
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_RGB + NEO_KHZ800);
 
+// shapes and their orientations
 int LShape[4][3][3] = {
   {
       {0, 0, 0},
@@ -140,6 +143,18 @@ int JShape[4][3][3] = {
     }
 };
 
+
+
+struct Color{
+  int r;
+  int g;
+  int b;
+  Color() : r(0),g(0),b(0){}
+  Color(int red, int green, int blue)
+    : r(red), g(green), b(blue){}
+};
+
+// shape and color structures(or classes)
 struct Shape {
 public:
     int matrix[4][3][3];
@@ -208,6 +223,18 @@ public:
         }
     }    
 
+    void saveToBoard(Color (&gameBoard)[20][10]){
+      for(int i = 0; i < 3; ++i){
+        for(int j = 0; j < 3; ++j){
+          if(matrix[rotationIndex][i][j]==1){
+            int xPos = x + i;
+            int yPos = y + j;
+            gameBoard[x][y] = Color(r,g,b);
+          }
+        }
+        }
+    }    
+
     void move_right()
     {
       if(x < 8)
@@ -235,21 +262,27 @@ public:
       return y<=1;
     }
 };
+
+
+//grid matrix
+Color gameBoard[20][10];
+
 void setup() {
   strip.begin();  // Initialize the NeoPixel strip
   strip.show();
   Serial.begin(9600);
 }
-  Shape test1 = SpawnShape();
 
-
+Shape test1 = SpawnShape();
 void loop(){
   if(test1.isBottom()){
+    test1.saveToBoard(gameBoard);
     test1 = SpawnShape();
-  }
+    }
   test1.draw(strip);
   strip.clear();
   MoveShape(test1);
+  drawGrid(gameBoard,strip);
   delay(200);
   strip.clear();
   test1.move_down();
@@ -285,6 +318,18 @@ void MoveShape(Shape &shape){
     if(joyY < 300){
       shape.move_down();
     }
+
+}
+
+void drawGrid(Color (&grid)[20][10], Adafruit_NeoPixel &strip){
+  for(int i, i<21; i++){
+    for(int j, j,11; j++)
+    {
+      Color c = grid[i][j];
+      if(c==Color())
+        strip.setPixelColor(Shape.remap(j, i), c.r, c.g, c.b));
+    }
+  }
 
 }
 /*TO DO:
