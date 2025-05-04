@@ -140,7 +140,6 @@ int JShape[4][3][3] = {
     }
 };
 
-
 struct Shape {
 public:
     int matrix[4][3][3];
@@ -232,20 +231,28 @@ public:
         y -= 1;
       }
     }
+    bool isBottom(){
+      return y<=1;
+    }
 };
 void setup() {
   strip.begin();  // Initialize the NeoPixel strip
   strip.show();
   Serial.begin(9600);
 }
+  Shape test1 = SpawnShape();
 
 
 void loop(){
-  Shape test1 = SpawnShape();
+  if(test1.isBottom()){
+    test1 = SpawnShape();
+  }
   test1.draw(strip);
-    strip.clear();
-  delay(3000);
   strip.clear();
+  MoveShape(test1);
+  delay(200);
+  strip.clear();
+  test1.move_down();
 
 }
 
@@ -263,6 +270,22 @@ Shape SpawnShape(){
     case 4: return Shape(5,18,r,g,b,TShape,rotation);
     case 5: return Shape(5,18,r,g,b,OShape,rotation);
   }
+}
+
+void MoveShape(Shape &shape){
+  int joyX = analogRead(A0);
+  int joyY = analogRead(A1);
+
+    if(joyX > 600){
+      shape.move_right();
+    }
+    else if(joyX < 300){
+      shape.move_left();
+    }
+    if(joyY < 300){
+      shape.move_down();
+    }
+
 }
 /*TO DO:
   
