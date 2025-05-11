@@ -12,22 +12,22 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_RGB + NEO_KHZ800
 // shapes and their orientations
 int LShape[4][3][3] = {
   {
-      {0, 0, 0},
-      {1, 1, 1},
-      {0, 0, 1}
-  },
-  {
-      {0, 1, 0},
-      {0, 1, 0},
-      {1, 1, 0}
-  },
-  {
-      {1, 0, 0},
+      {0, 0, 1},
       {1, 1, 1},
       {0, 0, 0}
   },
   {
-      {0, 1, 1},
+      {0, 1, 0},
+      {0, 1, 0},
+      {0, 1, 1}
+  },
+  {
+      {0, 0, 0},
+      {1, 1, 1},
+      {1, 0, 0}
+  },
+  {
+      {1, 1, 0},
       {0, 1, 0},
       {0, 1, 0}
   }
@@ -152,6 +152,10 @@ struct Color{
   Color() : r(0),g(0),b(0){}
   Color(int red, int green, int blue)
     : r(red), g(green), b(blue){}
+
+   bool operator==(const Color& other) const {
+    return r == other.r && g == other.g && b == other.b;
+  }
 };
 
 // shape and color structures(or classes)
@@ -176,11 +180,11 @@ public:
         rotationIndex = rotationIndex%4;
         Serial.println(rotationIndex);
     }
-    virtual void rotateAntiClockwise() {
-        rotationIndex-=1;
-        if(rotationIndex<0) rotationIndex=3;
-        Serial.println(rotationIndex);
-    }
+    // virtual void rotateAntiClockwise() {
+    //     rotationIndex-=1;
+    //     if(rotationIndex<0) rotationIndex=3;
+    //     Serial.println(rotationIndex);
+    // }
 
     uint16_t remap(uint16_t x, uint16_t y) {
       if (x <= 6) 
@@ -219,17 +223,16 @@ public:
             strip.setPixelColor(remap(xPos, yPos), r, g, b);
           }
         }
-        strip.show();
         }
     }    
 
-    void saveToBoard(Color (&gameBoard)[20][10]){
+    void saveToBoard(Color (&gameBoard)[10][20]){
       for(int i = 0; i < 3; ++i){
         for(int j = 0; j < 3; ++j){
           if(matrix[rotationIndex][i][j]==1){
-            int xPos = x + i;
-            int yPos = y + j;
-            gameBoard[x][y] = Color(r,g,b);
+            int xPos = x + i -1;
+            int yPos = y + j-1;
+            gameBoard[xPos][yPos] = Color(r, g, b);
           }
         }
         }
@@ -245,7 +248,7 @@ public:
 
     void move_left()
     {
-      if(x > 0)
+      if(x > 1)
       {
         x -= 1;
       }
@@ -261,33 +264,20 @@ public:
     bool isBottom(){
       return y<=1;
     }
+
+    bool isCollided(Color (&grid)[10][20])
+    {
+      for(int i=0; i < 3; i++){
+        if(!(grid[x+i][y-1] ==  Color(0,0,0))){
+          Serial.println("Color below!!!");
+          return true;
+          
+        }
+      }
+      return false;
+    }
 };
 
-
-//grid matrix
-Color gameBoard[20][10];
-
-void setup() {
-  strip.begin();  // Initialize the NeoPixel strip
-  strip.show();
-  Serial.begin(9600);
-}
-
-Shape test1 = SpawnShape();
-void loop(){
-  if(test1.isBottom()){
-    test1.saveToBoard(gameBoard);
-    test1 = SpawnShape();
-    }
-  test1.draw(strip);
-  strip.clear();
-  MoveShape(test1);
-  drawGrid(gameBoard,strip);
-  delay(200);
-  strip.clear();
-  test1.move_down();
-
-}
 
 Shape SpawnShape(){
   int shapeMatrix = random(0,6);
@@ -320,18 +310,81 @@ void MoveShape(Shape &shape){
     }
 
 }
-
-void drawGrid(Color (&grid)[20][10], Adafruit_NeoPixel &strip){
-  for(int i, i<21; i++){
-    for(int j, j,11; j++)
+uint16_t remap(uint16_t x, uint16_t y) {
+  if (x <= 6) 
+  {
+    if(x%2)
     {
-      Color c = grid[i][j];
-      if(c==Color())
-        strip.setPixelColor(Shape.remap(j, i), c.r, c.g, c.b));
+      //Odd rows, They go up in counting
+      return (x-1)*40 + (y*2)-1;
+    }
+    else
+    {
+      //Positive rows, They go down in counting
+      return x*40 - (y*2);
+    }
+  } 
+  else 
+  {
+    if(x%2)
+    {
+      return 240 + (x-7)*20 + y-1;
+    }
+    else {
+    {
+      return 240 + (x-6)*20 - (y);
+    }
     }
   }
-
 }
-/*TO DO:
+
+
+void DrawGrid(Color (&grid)[10][20], Adafruit_NeoPixel &strip) {
+  for (int i = 0; i < 10; ++i) {
+    for (int j = 0; j < 20; ++j) {
+      Color c = grid[i][j];
+      if (!(c == Color(0, 0, 0))) {
+        strip.setPixelColor(remap(i+1, j+1), c.r, c.g, c.b);
+      }
+    }
+  }
+}
+
+//grid matrix
+Color gameBoard[10][20];
+
+void setup() {
+  strip.begin();  // Initialize the NeoPixel strip
+  strip.show();
+  Serial.begin(9600);
+
+    unsigned long seed = 0;
+  for(int i = A0; i <= A5; i++)
+  {
+    seed += analogRead(i); 
+  }
+  randomSeed(seed);
+}
+
+Shape test1 = SpawnShape();
+void loop(){
+
+  if(test1.isBottom()){
+    test1.saveToBoard(gameBoard);
+    test1 = SpawnShape();
+    }
   
-*/
+  test1.draw(strip);
+  MoveShape(test1);
+  DrawGrid(gameBoard,strip);
+  strip.show();
+  delay(400);
+  strip.clear();
+  if(test1.isCollided(gameBoard)){
+    test1.saveToBoard(gameBoard);
+    test1 = SpawnShape();
+  }
+  else{
+    test1.move_down();
+  }
+}
